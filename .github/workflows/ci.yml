@@ -2,21 +2,19 @@ name: PHP Student Project CI
 
 on:
   push:
-    branches: [ main, master ] # Сработает при пуше в эти ветки
+    branches: [ main, master ]
 
 jobs:
-  # ЭТАП 1: Сборка
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4 # Обновлено до v4
+        uses: actions/checkout@v4
 
       - name: Build Docker images
-        # Указываем путь к файлу в подпапке через флаг -f
+        # Мы указываем Docker зайти в папку 9 лабы и собрать образ там
         run: docker compose -f 9_kyu_web_lab/docker-compose.yml build lab7_php
 
-  # ЭТАП 2: Тестирование (Разделение pipeline — штрафное задание)
   test:
     needs: build
     runs-on: ubuntu-latest
@@ -25,25 +23,21 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Start services
-        # Запуск сервисов из подпапки
         run: docker compose -f 9_kyu_web_lab/docker-compose.yml up -d
 
-      - name: Wait for services (Штрафное задание)
-        run: sleep 15 # Ждем поднятия БД внутри сети Docker
-
-      - name: Check containers (Штрафное задание)
-        run: docker ps # Проверка статуса запущенных контейнеров
+      - name: Wait for MySQL
+        run: sleep 15
 
       - name: Install dependencies
-        # Выполняем composer install внутри контекста подпапки
+        # Выполняем установку внутри контейнера, используя конфиг из папки
         run: docker compose -f 9_kyu_web_lab/docker-compose.yml exec -T lab7_php composer install
 
       - name: Run PHPUnit Tests
-        # Явное указание пути к тестам внутри контейнера
+        # Важно: указываем путь к тестам внутри контейнера
         run: docker compose -f 9_kyu_web_lab/docker-compose.yml exec -T lab7_php vendor/bin/phpunit 9_kyu_web_lab/tests
 
-      - name: Show logs on error (Штрафное задание)
-        if: failure() # Выполнится только если тесты упали
+      - name: Show logs on error
+        if: failure()
         run: docker compose -f 9_kyu_web_lab/docker-compose.yml logs
 
       - name: Stop containers
