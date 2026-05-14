@@ -2,7 +2,7 @@ name: PHP Student Project CI
 
 on:
   push:
-    branches: [ main, master ] # сработает при пуше в эти ветки
+    branches: [ main, master ] # Сработает при пуше в эти ветки
 
 jobs:
   # ЭТАП 1: Сборка
@@ -10,10 +10,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4 # Обновлено до v4
 
       - name: Build Docker images
-        run: docker compose build php
+        # Указываем путь к файлу в подпапке через флаг -f
+        run: docker compose -f 9_kyu_web_lab/docker-compose.yml build lab7_php
 
   # ЭТАП 2: Тестирование (Разделение pipeline — штрафное задание)
   test:
@@ -21,27 +22,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Start services
-        run: docker compose up -d
+        # Запуск сервисов из подпапки
+        run: docker compose -f 9_kyu_web_lab/docker-compose.yml up -d
 
       - name: Wait for services (Штрафное задание)
-        run: sleep 15 # Ждем поднятия MySQL и Kafka
+        run: sleep 15 # Ждем поднятия БД внутри сети Docker
 
       - name: Check containers (Штрафное задание)
-        run: docker ps
+        run: docker ps # Проверка статуса запущенных контейнеров
 
       - name: Install dependencies
-        run: docker compose exec -T php composer install
+        # Выполняем composer install внутри контекста подпапки
+        run: docker compose -f 9_kyu_web_lab/docker-compose.yml exec -T lab7_php composer install
 
       - name: Run PHPUnit Tests
-        run: docker compose exec -T php vendor/bin/phpunit tests
+        # Явное указание пути к тестам внутри контейнера
+        run: docker compose -f 9_kyu_web_lab/docker-compose.yml exec -T lab7_php vendor/bin/phpunit 9_kyu_web_lab/tests
 
       - name: Show logs on error (Штрафное задание)
         if: failure() # Выполнится только если тесты упали
-        run: docker compose logs
+        run: docker compose -f 9_kyu_web_lab/docker-compose.yml logs
 
       - name: Stop containers
         if: always()
-        run: docker compose down
+        run: docker compose -f 9_kyu_web_lab/docker-compose.yml down
