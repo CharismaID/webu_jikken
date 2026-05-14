@@ -1,0 +1,7 @@
+www/vendor/
+
+.idea/
+.vscode/
+
+.DS_Store
+Thumbs.db

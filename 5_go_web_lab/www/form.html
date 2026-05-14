@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Лабораторная работа №3 - Форма</title>
+</head>
+<body>
+
+<h2>Регистрация студента</h2>
+
+<form id="orderForm" action="process.php" method="POST">
+    ФИО: <label><input type="text" name="name" required></label><br><br>
+
+    Возраст: <label><input type="number" name="age" min="16" max="100" required></label><br><br>
+
+    Факультет:
+    <label>
+        <select name="faculty">
+            <option value="ИТ">Информационные технологии</option>
+            <option value="Экономика">Экономика</option>
+            <option value="Гуманитарный">Гуманитарный</option>
+        </select>
+    </label><br><br>
+
+    <label>
+        <input type="checkbox" name="agree" value="1" required>
+    </label> Согласен с правилами<br><br>
+
+    Форма обучения: <br>
+    <label><input type="radio" name="study_form" value="Очная" checked> Очная</label><br>
+    <label><input type="radio" name="study_form" value="Заочная"> Заочная</label><br><br>
+
+    <button type="submit">Зарегистрироваться</button>
+</form>
+
+<script>
+    document.getElementById("orderForm").addEventListener("submit", function () {
+        const customerName = document.querySelector("[name='customer_name']").value;
+        const food = document.querySelector("[name='food']").value;
+
+        alert("Вы оформляете заказ на имя: " + customerName + "\nВыбранное блюдо: " + food);
+    });
+</script>
+
+</body>
+</html>

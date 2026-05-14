@@ -1,0 +1,50 @@
+services:
+  web:
+    image: nginx:1.27-alpine
+    ports:
+      - "8000:80"
+    volumes:
+      - ./www:/var/www/html
+      - ./default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+
+  php:
+    build: .
+    container_name: lab7_php
+    volumes:
+      - ./www:/var/www/html
+    depends_on:
+      - kafka
+      - db
+
+  db:
+    image: mysql:8.0
+    container_name: lab7_db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: lab5_db
+      MYSQL_USER: lab5_user
+      MYSQL_PASSWORD: lab5_pass
+    ports:
+      - "3307:3306"
+
+  zookeeper:
+    image: bitnamilegacy/zookeeper:3.8.0
+    container_name: lab7_zookeeper
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: bitnamilegacy/kafka:3.4.0
+    container_name: lab7_kafka
+    ports:
+      - "9092:9092"
+    environment:
+      - KAFKA_ENABLE_KRAFT=no
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    depends_on:
+      - zookeeper

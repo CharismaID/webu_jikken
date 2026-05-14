@@ -1,0 +1,6 @@
+{
+  "require": {
+    "nmred/kafka-php": "^0.2.0",
+    "php-amqplib/php-amqplib": "^3.2"
+  }
+}
